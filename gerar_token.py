@@ -1,7 +1,7 @@
 import datetime
 import sys
 import jwt  
-from db import Database
+from dataBase import Database
 
 # Chave secreta para assinatura dos tokens JWT
 SECRET_KEY = "teste"
@@ -30,10 +30,10 @@ def gerar_token(avaliacao, mat):
     return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
 if __name__ == "__main__":
-    db = Database()
+    dataBase = Database()
     try:
         # Obtendo os contatos com base nos dois primeiros dígitos de 'mat' e 'cot' da função pega_contatos_teste()
-        contatos = db.pega_contatos_db(mat_prefix, cot_prefix)
+        contatos = dataBase.pega_contatos_dataBase(mat_prefix, cot_prefix)
 
         # Se não houver contatos disponíveis, exiba uma mensagem e saia
         if not contatos:
@@ -54,14 +54,14 @@ if __name__ == "__main__":
                 # Atualizar o campo 'token' no dicionário de contato
                 contato['token'] = token
                 # Salvar o token no banco de dados
-                db.inserir_token(matricula, token)
+                dataBase.inserir_token(matricula, token)
                 print(f"Token gerado e salvo para {matricula}: {token}")
             else:
                 # Se o campo 'token' já estiver preenchido, ignore
                 print(f"Token já existente para {matricula}: {contato['token']}")
 
         # Commit de todas as alterações
-        db.commit()
+        dataBase.commit()
         print("Geração de tokens concluída.")
     finally:
-        db.close()
+        dataBase.close()
