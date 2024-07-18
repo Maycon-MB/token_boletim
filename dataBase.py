@@ -19,23 +19,23 @@ class Database:
         self.cursor.close()
         self.conn.close()
 
-    def inserir_token(self, mat, token):
+    def inserir_token(self, mat, avaliacao, token):
         try:
-            self.cursor.execute("UPDATE boletim_geral SET token = %s WHERE mat = %s AND token IS NULL AND boletim IS NOT NULL", (token, mat))
+            self.cursor.execute(
+                "UPDATE boletim_geral SET token = %s WHERE mat = %s AND avaliacao = %s AND token IS NULL AND boletim IS NOT NULL", 
+                (token, mat, avaliacao)
+            )
         except psycopg2.Error as e:
             logger.error("Erro ao inserir token no PostgreSQL: %s", e)
 
     def commit(self):
         self.conn.commit()
 
-    def pega_contatos_db(self, mat_prefix=None, avaliacao_prefix=None):
+    def pega_contatos_db(self):
         contatos = []
         try:
-            if mat_prefix is not None and avaliacao_prefix is not None:
-                self.cursor.execute("SELECT mat, nom, avaliacao, boletim, token, email, cpfa, cpf, cpf2, data_gerado FROM boletim_geral WHERE LEFT(mat, 2) = %s AND avaliacao = %s", (mat_prefix, avaliacao_prefix))
-            else:
-                self.cursor.execute("SELECT mat, nom, avaliacao, boletim, token, email, cpfa, cpf, cpf2, data_gerado FROM boletim_geral")
-
+            self.cursor.execute("SELECT mat, nom, avaliacao, boletim, token, email, cpfa, cpf, cpf2, data_gerado FROM boletim_geral")
+        
             rows = self.cursor.fetchall()
             for row in rows:
                 contatos.append({
@@ -54,4 +54,3 @@ class Database:
             logger.error("Erro ao conectar ao PostgreSQL: %s", e)
 
         return contatos
-
